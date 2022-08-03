@@ -1,9 +1,8 @@
-﻿using System;
-using Microsoft.AspNetCore.Http;
-using System.Collections.Generic;
-
-using JWT.Algorithms;
+﻿using JWT.Algorithms;
 using JWT.Builder;
+using Microsoft.AspNetCore.Http;
+using System;
+using System.Collections.Generic;
 
 namespace BaseItechFuntion.Helpers
 {
@@ -12,6 +11,7 @@ namespace BaseItechFuntion.Helpers
         public bool IsValid { get; }
         public string Username { get; }
         public string Role { get; }
+        public string RoleId { get; }
         public ValidateJWT(HttpRequest request)
         {
             // Check if we have a header.
@@ -67,6 +67,7 @@ namespace BaseItechFuntion.Helpers
             IsValid = true;
             Username = Convert.ToString(claims["username"]);
             Role = Convert.ToString(claims["role"]);
+            RoleId = Convert.ToString(claims["roleId"]);
         }
     }
 }
