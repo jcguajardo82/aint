@@ -10,6 +10,8 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using BaseItechFuntion.Helpers;
 using BaseItechFuntion.Model;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace BaseItechFuntion.Fn
 {
@@ -17,7 +19,8 @@ namespace BaseItechFuntion.Fn
     {
         [FunctionName("GetMenus")]
         public static async Task<IActionResult> GetMenus(
-          [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "GetMenus")] HttpRequest req, ILogger log)
+         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "GetMenus")] HttpRequest req,
+         ILogger log)
         {
             try
             {
@@ -52,7 +55,8 @@ namespace BaseItechFuntion.Fn
 
         [FunctionName("GetMenu")]
         public static async Task<IActionResult> GetMenu(
-          [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "GetMenu")] HttpRequest req, ILogger log)
+          [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "GetMenu/{idMenu}")] HttpRequest req,
+          ILogger log, int idMenu)
         {
             try
             {
@@ -63,15 +67,9 @@ namespace BaseItechFuntion.Fn
                     return new UnauthorizedResult(); // No authentication info.
                 }
 
-                #region Map Request
-                string jsonMenuModelRequest = await new StreamReader(req.Body).ReadToEndAsync();
-
-                SimpleMenuReq menu = JsonConvert.DeserializeObject<SimpleMenuReq>(jsonMenuModelRequest);
-                #endregion
-
                 DAL.DAL objDal = new DAL.DAL();
 
-                var _result = objDal.MenuByIdMenu_sUP(menu.idMenu);
+                var _result = objDal.MenuByIdMenu_sUP(idMenu);
 
                 return await Task.FromResult(new OkObjectResult(new Response
                 {
@@ -93,7 +91,8 @@ namespace BaseItechFuntion.Fn
 
         [FunctionName("AddMenu")]
         public static async Task<IActionResult> AddMenu(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "AddMenu")] HttpRequest req, ILogger log)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "AddMenu")] MenuModel menu, HttpRequest req,
+            ILogger log)
         {
             try
             {
@@ -104,12 +103,6 @@ namespace BaseItechFuntion.Fn
                     return new UnauthorizedResult(); // No authentication info.
                 }
 
-                #region Map Request
-                string jsonUserModelRequest = await new StreamReader(req.Body).ReadToEndAsync();
-
-                MenuModel menu = JsonConvert.DeserializeObject<MenuModel>(jsonUserModelRequest);
-                #endregion
-
                 DAL.DAL objDal = new DAL.DAL();
 
                 objDal.Menu_iUP(menu);
@@ -118,7 +111,7 @@ namespace BaseItechFuntion.Fn
                 {
                     IsSuccess = true,
                     Message = "ok",
-               
+
                 })).ConfigureAwait(false);
             }
             catch (Exception ex)
@@ -134,7 +127,8 @@ namespace BaseItechFuntion.Fn
 
         [FunctionName("UpdMenu")]
         public static async Task<IActionResult> UpdMenu(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "UpdMenu")] HttpRequest req, ILogger log)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "UpdMenu")] MenuModel menu, HttpRequest req,
+            ILogger log)
         {
             try
             {
@@ -145,15 +139,223 @@ namespace BaseItechFuntion.Fn
                     return new UnauthorizedResult(); // No authentication info.
                 }
 
-                #region Map Request
-                string jsonUserModelRequest = await new StreamReader(req.Body).ReadToEndAsync();
-
-                MenuModel menu = JsonConvert.DeserializeObject<MenuModel>(jsonUserModelRequest);
-                #endregion
-
                 DAL.DAL objDal = new DAL.DAL();
 
                 objDal.Menu_uUP(menu);
+
+                return await Task.FromResult(new OkObjectResult(new Response
+                {
+                    IsSuccess = true,
+                    Message = "ok",
+
+                })).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+
+                return await Task.FromResult(new BadRequestObjectResult(new Response
+                {
+                    IsSuccess = false,
+                    Message = ex.Message
+                })).ConfigureAwait(false);
+            }
+        }
+
+        [FunctionName("GetMenusRol")]
+        public static async Task<IActionResult> GetMenusRol(
+         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "GetMenusRol")] HttpRequest req,
+         ILogger log)
+        {
+            try
+            {
+                ValidateJWT auth = new ValidateJWT(req);
+
+                if (!auth.IsValid)
+                {
+                    return new UnauthorizedResult(); // No authentication info.
+                }
+
+                DAL.DAL objDal = new DAL.DAL();
+
+                var _result = objDal.MenusRol_sUP(int.Parse(auth.RoleId));
+
+                var padres = _result.Where(x => x.padreId == 0).ToList();
+
+                var menuLst = new List<MenuSite>();
+
+                foreach (var p in padres)
+                {
+
+
+                    var mitem = new MenuSite();
+
+                    mitem.icon = p.icono;
+                    mitem.label = p.descripcionCorta;
+                    mitem.routerLink = p.url;
+                    mitem.items = new List<item>();
+                    var h = _result.Where(z => z.padreId == p.menuId).ToList();
+
+
+                    foreach (var item in h)
+                    {
+
+
+                        mitem.items.Add(
+                            new item
+                            {
+                                icon = item.icono,
+                                label = item.descripcionCorta,
+                                routerLink = item.url
+                            }
+                            );
+                    }
+                    menuLst.Add(mitem);
+                }
+
+
+                return await Task.FromResult(new OkObjectResult(new Response
+                {
+                    IsSuccess = true,
+                    Message = "ok",
+                    Result = menuLst
+                })).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+
+                return await Task.FromResult(new BadRequestObjectResult(new Response
+                {
+                    IsSuccess = false,
+                    Message = ex.Message
+                })).ConfigureAwait(false);
+            }
+        }
+
+        [FunctionName("GetMenusPadre")]
+        public static async Task<IActionResult> GetMenusPadre(
+          [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "GetMenusPadre")] HttpRequest req,
+          ILogger log)
+        {
+            try
+            {
+                ValidateJWT auth = new ValidateJWT(req);
+
+                if (!auth.IsValid)
+                {
+                    return new UnauthorizedResult(); // No authentication info.
+                }
+
+                DAL.DAL objDal = new DAL.DAL();
+
+                var _result = objDal.Menu_sUP().Where(x => x.padreId == 0).ToList();
+
+                return await Task.FromResult(new OkObjectResult(new Response
+                {
+                    IsSuccess = true,
+                    Message = "ok",
+                    Result = _result
+                })).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+
+                return await Task.FromResult(new BadRequestObjectResult(new Response
+                {
+                    IsSuccess = false,
+                    Message = ex.Message
+                })).ConfigureAwait(false);
+            }
+        }
+
+        [FunctionName("GetMenusHijos")]
+        public static async Task<IActionResult> GetMenusHijos(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "GetMenusHijos/{padreId}")] HttpRequest req,
+            ILogger log, int padreId)
+        {
+            try
+            {
+                ValidateJWT auth = new ValidateJWT(req);
+
+                if (!auth.IsValid)
+                {
+                    return new UnauthorizedResult(); // No authentication info.
+                }
+
+                DAL.DAL objDal = new DAL.DAL();
+
+                var _result = objDal.Menu_sUP().Where(x => x.padreId == padreId).ToList();
+
+                return await Task.FromResult(new OkObjectResult(new Response
+                {
+                    IsSuccess = true,
+                    Message = "ok",
+                    Result = _result
+                })).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+
+                return await Task.FromResult(new BadRequestObjectResult(new Response
+                {
+                    IsSuccess = false,
+                    Message = ex.Message
+                })).ConfigureAwait(false);
+            }
+        }
+
+        [FunctionName("DelMenu")]
+        public static async Task<IActionResult> DelMenu(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "DelMenu/{menuId}")] HttpRequest req,
+        ILogger log, int menuId)
+        {
+            try
+            {
+                ValidateJWT auth = new ValidateJWT(req);
+
+                if (!auth.IsValid)
+                {
+                    return new UnauthorizedResult(); // No authentication info.
+                }
+
+                DAL.DAL objDal = new DAL.DAL();
+
+                objDal.Menu_dUP(menuId);
+
+                return await Task.FromResult(new OkObjectResult(new Response
+                {
+                    IsSuccess = true,
+                    Message = "ok",
+
+                })).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+
+                return await Task.FromResult(new BadRequestObjectResult(new Response
+                {
+                    IsSuccess = false,
+                    Message = ex.Message
+                })).ConfigureAwait(false);
+            }
+        }
+
+        [FunctionName("DelMenuSub")]
+        public static async Task<IActionResult> DelMenuSub(
+          [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "DelMenuSub/{menuId}")] HttpRequest req,
+          ILogger log, int menuId)
+        {
+            try
+            {
+                ValidateJWT auth = new ValidateJWT(req);
+
+                if (!auth.IsValid)
+                {
+                    return new UnauthorizedResult(); // No authentication info.
+                }
+
+                DAL.DAL objDal = new DAL.DAL();
+
+                objDal.MenuSub_dUP(menuId);
 
                 return await Task.FromResult(new OkObjectResult(new Response
                 {

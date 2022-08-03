@@ -10,14 +10,17 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using BaseItechFuntion.Model;
 using BaseItechFuntion.Helpers;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace BaseItechFuntion.Fn
 {
     public static class Rol
     {
-        [FunctionName("AddRol")]
-        public static async Task<IActionResult> AddRol(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "AddRol")] HttpRequest req, ILogger log)
+        [FunctionName("GetRoles")]
+        public static async Task<IActionResult> GetRoles(
+           [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "GetRoles/{activo}")] HttpRequest req,
+           ILogger log, bool activo)
         {
             try
             {
@@ -28,14 +31,82 @@ namespace BaseItechFuntion.Fn
                     return new UnauthorizedResult(); // No authentication info.
                 }
 
-                #region Map Request
-                string jsonRolModelRequest = await new StreamReader(req.Body).ReadToEndAsync();
+                DAL.DAL objDal = new DAL.DAL();
 
-                RolModel rol = JsonConvert.DeserializeObject<RolModel>(jsonRolModelRequest);
-                #endregion
+                var _result = objDal.roles_sUP(activo);
+
+                return await Task.FromResult(new OkObjectResult(new Response
+                {
+                    IsSuccess = true,
+                    Message = "ok",
+                    Result = _result
+
+                })).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+
+                return await Task.FromResult(new BadRequestObjectResult(new Response
+                {
+                    IsSuccess = false,
+                    Message = ex.Message
+                })).ConfigureAwait(false);
+            }
+        }
+
+        [FunctionName("GetRol")]
+        public static async Task<IActionResult> GetRol(
+           [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "GetRol/{idRol}")] HttpRequest req,
+           ILogger log, int idRol)
+        {
+            try
+            {
+                ValidateJWT auth = new ValidateJWT(req);
+
+                if (!auth.IsValid)
+                {
+                    return new UnauthorizedResult(); // No authentication info.
+                }
 
                 DAL.DAL objDal = new DAL.DAL();
 
+                var _result = objDal.rolesByIdRol_sUP(idRol);
+
+                return await Task.FromResult(new OkObjectResult(new Response
+                {
+                    IsSuccess = true,
+                    Message = "ok",
+                    Result = _result
+
+                })).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+
+                return await Task.FromResult(new BadRequestObjectResult(new Response
+                {
+                    IsSuccess = false,
+                    Message = ex.Message
+                })).ConfigureAwait(false);
+            }
+        }
+
+
+        [FunctionName("AddRol")]
+        public static async Task<IActionResult> AddRol(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "AddRol")] RolModel rol, HttpRequest req,
+            ILogger log)
+        {
+            try
+            {
+                ValidateJWT auth = new ValidateJWT(req);
+
+                if (!auth.IsValid)
+                {
+                    return new UnauthorizedResult(); // No authentication info.
+                }
+
+                DAL.DAL objDal = new DAL.DAL();
 
                 objDal.roles_iUP(rol);
 
@@ -59,7 +130,8 @@ namespace BaseItechFuntion.Fn
 
         [FunctionName("UpdRol")]
         public static async Task<IActionResult> UpdRol(
-           [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "UpdRol")] HttpRequest req, ILogger log)
+           [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "UpdRol")] RolModel rol, HttpRequest req,
+           ILogger log)
         {
             try
             {
@@ -69,12 +141,6 @@ namespace BaseItechFuntion.Fn
                 {
                     return new UnauthorizedResult(); // No authentication info.
                 }
-
-                #region Map Request
-                string jsonRolModelRequest = await new StreamReader(req.Body).ReadToEndAsync();
-
-                RolModel rol = JsonConvert.DeserializeObject<RolModel>(jsonRolModelRequest);
-                #endregion
 
                 DAL.DAL objDal = new DAL.DAL();
 
@@ -101,7 +167,8 @@ namespace BaseItechFuntion.Fn
 
         [FunctionName("GetMenuRol")]
         public static async Task<IActionResult> GetMenuRol(
-           [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "GetMenuRol")] HttpRequest req, ILogger log)
+           [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "GetMenuRol/{idRol}")] HttpRequest req,
+           ILogger log, int idRol)
         {
             try
             {
@@ -112,21 +179,60 @@ namespace BaseItechFuntion.Fn
                     return new UnauthorizedResult(); // No authentication info.
                 }
 
-                #region Map Request
-                string jsonRolModelRequest = await new StreamReader(req.Body).ReadToEndAsync();
-
-                RolModel rol = JsonConvert.DeserializeObject<RolModel>(jsonRolModelRequest);
-                #endregion
-
                 DAL.DAL objDal = new DAL.DAL();
 
-                var _result = objDal.MenuRolConfig_sUp(rol.idRol);
+                var _result = objDal.MenuRolConfig_sUp(idRol);
+
+
+                var p = _result.Where(x => x.padreId == 0).ToList();
+
+                List<MenuRolTreeModel> lst = new List<MenuRolTreeModel>();
+
+                foreach (var pitem in p)
+                {
+                    var mrt = new MenuRolTreeModel();
+
+                    mrt.label = pitem.descripcion + " - " + pitem.descripcionCorta;
+
+                    mrt.expandedIcon = pitem.icono;
+                    mrt.collapsedIcon = pitem.icono;
+                    mrt.key = pitem.menuId.ToString();
+                    mrt.data = pitem.seleccionado.ToString();
+
+                    mrt.children = new List<MenuRolTreeModel.item>();
+
+                    var h = _result.Where(z => z.padreId == pitem.menuId).ToList();
+
+                    foreach (var hitem in h)
+                    {
+                        mrt.children.Add(
+                        new MenuRolTreeModel.item
+                        {
+                            label = hitem.descripcion + " - " + hitem.descripcionCorta,
+
+                            expandedIcon = hitem.icono,
+                            collapsedIcon = hitem.icono,
+                            key = hitem.menuId.ToString(),
+                            data = hitem.seleccionado.ToString()
+
+                        }
+                        );
+                    }
+
+
+
+                    lst.Add(mrt);
+
+                }
+
+
+
 
                 return await Task.FromResult(new OkObjectResult(new Response
                 {
                     IsSuccess = true,
                     Message = "ok",
-                    Result = _result
+                    Result = lst
 
                 })).ConfigureAwait(false);
             }
@@ -143,22 +249,17 @@ namespace BaseItechFuntion.Fn
 
         [FunctionName("SetMenuRol")]
         public static async Task<IActionResult> SetMenuRol(
-           [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "SetMenuRol")] HttpRequest req, ILogger log)
+           [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "SetMenuRol")] SetMenuRol menuR, HttpRequest req,
+           ILogger log)
         {
             try
-            {           
+            {
                 ValidateJWT auth = new ValidateJWT(req);
 
                 if (!auth.IsValid)
                 {
                     return new UnauthorizedResult(); // No authentication info.
                 }
-
-                #region Map Request
-                string jsonRolModelRequest = await new StreamReader(req.Body).ReadToEndAsync();
-
-                SetMenuRol menuR = JsonConvert.DeserializeObject<SetMenuRol>(jsonRolModelRequest);
-                #endregion
 
                 DAL.DAL objDal = new DAL.DAL();
 

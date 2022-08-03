@@ -17,11 +17,11 @@ namespace BaseItechFuntion.Fn
     {
         [FunctionName("GetUsers")]
         public static async Task<IActionResult> GetUsers(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "GetUsers")] HttpRequest req, ILogger log)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "GetUsers")] HttpRequest req,
+            ILogger log)
         {
             try
             {
-                string jsonCancelShipmentRequest = await new StreamReader(req.Body).ReadToEndAsync();
                 ValidateJWT auth = new ValidateJWT(req);
 
                 if (!auth.IsValid)
@@ -53,10 +53,11 @@ namespace BaseItechFuntion.Fn
 
         [FunctionName("AddUser")]
         public static async Task<IActionResult> AddUser(
-           [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "AddUser")] HttpRequest req, ILogger log)
+           [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "AddUser")] UserModel user, HttpRequest req,
+           ILogger log)
         {
             try
-            {              
+            {
                 ValidateJWT auth = new ValidateJWT(req);
 
                 if (!auth.IsValid)
@@ -64,11 +65,10 @@ namespace BaseItechFuntion.Fn
                     return new UnauthorizedResult(); // No authentication info.
                 }
 
-                #region Map Request
-                string jsonUserModelRequest = await new StreamReader(req.Body).ReadToEndAsync();
 
-                UserModel user = JsonConvert.DeserializeObject<UserModel>(jsonUserModelRequest);
-                #endregion
+
+
+
 
                 DAL.DAL objDal = new DAL.DAL();
 
@@ -94,7 +94,8 @@ namespace BaseItechFuntion.Fn
 
         [FunctionName("UpdUser")]
         public static async Task<IActionResult> UpdUser(
-           [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "UpdUser")] HttpRequest req,ILogger log)
+           [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "UpdUser")] UserModel user, HttpRequest req,
+           ILogger log)
         {
             try
             {
@@ -104,12 +105,6 @@ namespace BaseItechFuntion.Fn
                 {
                     return new UnauthorizedResult(); // No authentication info.
                 }
-
-                #region Map Request
-                string jsonUserModelRequest = await new StreamReader(req.Body).ReadToEndAsync();
-
-                UserModel user = JsonConvert.DeserializeObject<UserModel>(jsonUserModelRequest);
-                #endregion
 
                 DAL.DAL objDal = new DAL.DAL();
 
@@ -135,7 +130,8 @@ namespace BaseItechFuntion.Fn
 
         [FunctionName("GetUser")]
         public static async Task<IActionResult> GetUser(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "GetUser")] HttpRequest req, ILogger log)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "GetUser")] HttpRequest req,
+            ILogger log)
         {
             try
             {
@@ -146,15 +142,9 @@ namespace BaseItechFuntion.Fn
                     return new UnauthorizedResult(); // No authentication info.
                 }
 
-                #region Map Request
-                string jsonUserModelRequest = await new StreamReader(req.Body).ReadToEndAsync();
-
-                UserSimpleModelReq user = JsonConvert.DeserializeObject<UserSimpleModelReq>(jsonUserModelRequest);
-                #endregion
-
                 DAL.DAL objDal = new DAL.DAL();
 
-                var _result = objDal.UsuariosById_sUP(user.idUsuario);
+                var _result = objDal.UsuariosById_sUP(1);
 
                 return await Task.FromResult(new OkObjectResult(new Response
                 {
