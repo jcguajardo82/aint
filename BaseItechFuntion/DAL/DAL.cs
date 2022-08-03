@@ -1,11 +1,12 @@
-﻿using System;
+﻿using BaseItechFuntion.Helpers;
+using BaseItechFuntion.Model;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
-
-using BaseItechFuntion.Helpers;
-using BaseItechFuntion.Model;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace BaseItechFuntion.DAL
 {
@@ -48,6 +49,7 @@ namespace BaseItechFuntion.DAL
             {
                 userinfo.UserName = item["nombre"].ToString();
                 userinfo.Rol = item["nombreRol"].ToString();
+                userinfo.RolId = item["rol"].ToString();
             }
 
             return userinfo;
@@ -207,7 +209,7 @@ namespace BaseItechFuntion.DAL
 
             using (SqlConnection con = new SqlConnection(connString))
             {
-                using (SqlCommand sqlComm = new SqlCommand("[config].[roles_iUP]", con))
+                using (SqlCommand sqlComm = new SqlCommand("[config].[roles_uUP]", con))
                 {
                     sqlComm.CommandType = CommandType.StoredProcedure;
 
@@ -255,6 +257,64 @@ namespace BaseItechFuntion.DAL
 
 
             return DataTableToModel.ConvertTo<MenuRolConfig>(result.Tables[0]);
+
+
+        }
+
+        public List<RolModel> roles_sUP(bool activo = true)
+        {
+
+            DataSet result = new DataSet();
+            using (var sqlConnection = new SqlConnection(connString))
+            {
+                using (var command = sqlConnection.CreateCommand())
+                {
+                    using (SqlDataAdapter sda = new SqlDataAdapter(command))
+                    {
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.CommandText = "[config].[roles_sUP]";
+
+                        command.Parameters.AddWithValue("@activo", activo);
+
+                        //command.Parameters.Add(new SqlParameter("Usuario", Aut.Username) { SqlDbType = System.Data.SqlDbType.Char });
+
+                        result = new DataSet();
+                        sda.Fill(result);
+                    }
+                }
+            }
+
+
+            return DataTableToModel.ConvertTo<RolModel>(result.Tables[0]);
+
+
+        }
+
+        public RolModel rolesByIdRol_sUP(int IdRol)
+        {
+
+            DataSet result = new DataSet();
+            using (var sqlConnection = new SqlConnection(connString))
+            {
+                using (var command = sqlConnection.CreateCommand())
+                {
+                    using (SqlDataAdapter sda = new SqlDataAdapter(command))
+                    {
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.CommandText = "[config].[rolesByIdRol_sUP]";
+
+                        command.Parameters.AddWithValue("@IdRol", IdRol);
+
+                        //command.Parameters.Add(new SqlParameter("Usuario", Aut.Username) { SqlDbType = System.Data.SqlDbType.Char });
+
+                        result = new DataSet();
+                        sda.Fill(result);
+                    }
+                }
+            }
+
+
+            return DataTableToModel.ConvertTo<RolModel>(result.Tables[0]).FirstOrDefault();
 
 
         }
@@ -339,8 +399,8 @@ namespace BaseItechFuntion.DAL
                     sqlComm.Parameters.AddWithValue("@descripcion", menu.descripcion);
                     sqlComm.Parameters.AddWithValue("@descripcionCorta", menu.descripcionCorta);
                     sqlComm.Parameters.AddWithValue("@icono", menu.icono);
-                    sqlComm.Parameters.AddWithValue("@controller", menu.controller);
-                    sqlComm.Parameters.AddWithValue("@Action", menu.action);
+                    sqlComm.Parameters.AddWithValue("@url", menu.url);
+
                     sqlComm.Parameters.AddWithValue("@habilitado", menu.habilitado);
 
 
@@ -414,6 +474,85 @@ namespace BaseItechFuntion.DAL
 
         }
         //MenuByIdMenu_sUP
+
+        public List<MenuModel> MenusRol_sUP(int idRol)
+        {
+
+            DataSet result = new DataSet();
+            using (var sqlConnection = new SqlConnection(connString))
+            {
+                using (var command = sqlConnection.CreateCommand())
+                {
+                    using (SqlDataAdapter sda = new SqlDataAdapter(command))
+                    {
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.CommandText = "[config].[MenusRol_sUP]";
+
+                        command.Parameters.AddWithValue("@idRol", idRol);
+
+                        //command.Parameters.Add(new SqlParameter("Usuario", Aut.Username) { SqlDbType = System.Data.SqlDbType.Char });
+
+                        result = new DataSet();
+                        sda.Fill(result);
+                    }
+                }
+            }
+
+
+            return DataTableToModel.ConvertTo<MenuModel>(result.Tables[0]);
+
+
+        }
+
+
+        public void Menu_dUP(int menuId)
+        {
+
+            using (SqlConnection con = new SqlConnection(connString))
+            {
+                using (SqlCommand sqlComm = new SqlCommand("[config].[Menu_dUP]", con))
+                {
+                    sqlComm.CommandType = CommandType.StoredProcedure;
+
+
+                    sqlComm.Parameters.AddWithValue("@menuId", menuId);
+
+                    con.Open();
+                    sqlComm.ExecuteReader();
+
+                    //SqlDataAdapter adapter = new SqlDataAdapter(sqlComm);
+                    //adapter.Fill(ds);
+
+
+                }
+            }
+
+        }
+
+        public void MenuSub_dUP(int menuId)
+        {
+
+            using (SqlConnection con = new SqlConnection(connString))
+            {
+                using (SqlCommand sqlComm = new SqlCommand("[config].[MenuSub_dUP]", con))
+                {
+                    sqlComm.CommandType = CommandType.StoredProcedure;
+
+
+                    sqlComm.Parameters.AddWithValue("@menuId", menuId);
+
+                    con.Open();
+                    sqlComm.ExecuteReader();
+
+                    //SqlDataAdapter adapter = new SqlDataAdapter(sqlComm);
+                    //adapter.Fill(ds);
+
+
+                }
+            }
+
+        }
+
         #endregion
     }
 }
