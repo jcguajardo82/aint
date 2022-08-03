@@ -22,8 +22,6 @@ namespace BaseItechFuntion
         {
             try
             {
-                //string jsonCancelShipmentRequest = await new StreamReader(req.Body).ReadToEndAsync();
-
                 DAL.DAL objDal = new DAL.DAL();
 
                 var userInfo = objDal.Autenticar_sUP(login);
@@ -42,7 +40,8 @@ namespace BaseItechFuntion
  
                             // TODO: Add other claims here as necessary; maybe from a user database
                             { "role", userInfo.Rol},
-                            { "name", userInfo.UserName },
+
+                            { "roleId", userInfo.RolId },
                         };
 
                     GenerateJWTToken generateJWTToken = new();
@@ -52,12 +51,9 @@ namespace BaseItechFuntion
                     {
                         IsSuccess = true,
                         Message = "Ok",
-                        Result = new
-                        {
-                            token = "bar"
-                        }
+                        Result = token
 
-                        })).ConfigureAwait(false);
+                    })).ConfigureAwait(false);
                 }
 
             }
