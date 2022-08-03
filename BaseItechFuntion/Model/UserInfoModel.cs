@@ -12,5 +12,7 @@ namespace BaseItechFuntion.Model
 
         public string Rol { get; set; }
 
+        public string RolId { get; set; }
+
     }
 }
