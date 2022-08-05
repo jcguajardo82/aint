@@ -33,7 +33,7 @@ namespace BaseItechFuntion.Helpers
         //    { "role", "admin"}
         //};
 
-            string token = _jwtEncoder.Encode(claims, "Your Secret Securtity key string"); // Put this key in config
+            string token = _jwtEncoder.Encode(claims,"Your Secret Securtity key string"); // Put this key in config
             return token;
         }
     }
