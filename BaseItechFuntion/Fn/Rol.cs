@@ -282,5 +282,92 @@ namespace BaseItechFuntion.Fn
                 })).ConfigureAwait(false);
             }
         }
+
+
+
+        [FunctionName("GetMenuRolFuse")]
+        public static async Task<IActionResult> GetMenuRolFuse(
+           [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "GetMenuRolFuse/{idRol}")] HttpRequest req,
+           ILogger log, int idRol)
+        {
+            try
+            {
+                ValidateJWT auth = new ValidateJWT(req);
+
+                if (!auth.IsValid)
+                {
+                    return new UnauthorizedResult(); // No authentication info.
+                }
+
+                DAL.DAL objDal = new DAL.DAL();
+
+                var _result = objDal.MenuRolConfig_sUp(idRol);
+
+
+                var p = _result.Where(x => x.padreId == 0).ToList();
+
+                List<MenuRolTreeFuseModel> lst = new List<MenuRolTreeFuseModel>();
+
+                foreach (var pitem in p)
+                {
+                    var mrt = new MenuRolTreeFuseModel();
+
+                    mrt.name = pitem.descripcion + " - " + pitem.descripcionCorta;
+
+                    //mrt.expandedIcon = pitem.icono;
+                    //mrt.collapsedIcon = pitem.icono;
+                    mrt.id = pitem.menuId;
+                    mrt.selected = Convert.ToBoolean(pitem.seleccionado);
+
+                    mrt.children = new List<MenuRolTreeFuseModel>();
+                    mrt.parentId = pitem.padreId;
+                    mrt.indeterminate = false;
+
+                    var h = _result.Where(z => z.padreId == pitem.menuId).ToList();
+
+                    foreach (var hitem in h)
+                    {
+                        mrt.children.Add(
+                        new MenuRolTreeFuseModel
+                        {
+                            name = hitem.descripcion + " - " + hitem.descripcionCorta,
+
+                            //expandedIcon = hitem.icono,
+                            //collapsedIcon = hitem.icono,
+                            id = hitem.menuId,
+                            selected = Convert.ToBoolean(hitem.seleccionado),
+                            parentId=hitem.padreId,
+                            indeterminate=false
+                        }
+                        );
+                    }
+
+
+
+                    lst.Add(mrt);
+
+                }
+
+
+
+
+                return await Task.FromResult(new OkObjectResult(new Response
+                {
+                    IsSuccess = true,
+                    Message = "ok",
+                    Result = lst
+
+                })).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+
+                return await Task.FromResult(new BadRequestObjectResult(new Response
+                {
+                    IsSuccess = false,
+                    Message = ex.Message
+                })).ConfigureAwait(false);
+            }
+        }
     }
 }

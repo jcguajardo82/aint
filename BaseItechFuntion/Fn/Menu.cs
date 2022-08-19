@@ -374,5 +374,86 @@ namespace BaseItechFuntion.Fn
                 })).ConfigureAwait(false);
             }
         }
+
+
+        [FunctionName("GetMenusRolF")]
+        public static async Task<IActionResult> GetMenusRolF(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "GetMenusRolF")] HttpRequest req,
+        ILogger log)
+        {
+            try
+            {
+                ValidateJWT auth = new ValidateJWT(req);
+
+                if (!auth.IsValid)
+                {
+                    return new UnauthorizedResult(); // No authentication info.
+                }
+
+                DAL.DAL objDal = new DAL.DAL();
+
+                var _result = objDal.MenusRol_sUP(int.Parse(auth.RoleId));
+
+                var padres = _result.Where(x => x.padreId == 0).ToList();
+
+                var menuLst = new MenuFuseModel();
+                menuLst.Default = new List<FuseNavigationItem>();
+                menuLst.Compact = new List<FuseNavigationItem>();
+                menuLst.Futuristic = new List<FuseNavigationItem>();
+                menuLst.Horizontal = new List<FuseNavigationItem>();
+
+
+                foreach (var p in padres)
+                {
+
+
+                    var mitem = new FuseNavigationItem();
+
+                    mitem.icon = p.icono;
+                    mitem.title = p.descripcionCorta;
+                    mitem.link = p.url;
+                    mitem.type = "basic";
+                    mitem.id = p.menuId.ToString();
+                    //mitem.items = new List<item>();
+                    var h = _result.Where(z => z.padreId == p.menuId).ToList();
+
+
+                    //foreach (var item in h)
+                    //{
+
+
+                    //    mitem.items.Add(
+                    //        new item
+                    //        {
+                    //            icon = item.icono,
+                    //            label = item.descripcionCorta,
+                    //            routerLink = item.url
+                    //        }
+                    //        );
+                    //}
+                    menuLst.Default.Add(mitem);
+                    menuLst.Compact.Add(mitem);
+                    menuLst.Futuristic.Add(mitem);
+                    menuLst.Horizontal.Add(mitem);
+                }
+
+
+                return await Task.FromResult(new OkObjectResult(new Response
+                {
+                    IsSuccess = true,
+                    Message = "ok",
+                    Result = menuLst
+                })).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+
+                return await Task.FromResult(new BadRequestObjectResult(new Response
+                {
+                    IsSuccess = false,
+                    Message = ex.Message
+                })).ConfigureAwait(false);
+            }
+        }
     }
 }

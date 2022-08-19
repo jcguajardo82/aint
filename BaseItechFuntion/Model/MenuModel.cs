@@ -26,4 +26,21 @@ namespace BaseItechFuntion.Model
     {
         public int idMenu { get; set; }
     }
+
+    public class MenuFuseModel {
+
+        public List<FuseNavigationItem> Default { get; set; }
+        public List<FuseNavigationItem> Compact { get; set; }
+        public List<FuseNavigationItem> Futuristic { get; set; }
+        public List<FuseNavigationItem> Horizontal { get; set; }
+    }
+
+    public class FuseNavigationItem
+    {
+        public string id { get; set; }
+        public string title { get; set; }
+        public string type { get; set; }
+        public string icon { get; set; }
+        public string link { get; set; }
+    }
 }

@@ -130,8 +130,8 @@ namespace BaseItechFuntion.Fn
 
         [FunctionName("GetUser")]
         public static async Task<IActionResult> GetUser(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "GetUser")] HttpRequest req,
-            ILogger log)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "GetUser/{id}")]  HttpRequest req,
+            ILogger log,int id)
         {
             try
             {
@@ -144,7 +144,7 @@ namespace BaseItechFuntion.Fn
 
                 DAL.DAL objDal = new DAL.DAL();
 
-                var _result = objDal.UsuariosById_sUP(1);
+                var _result = objDal.UsuariosById_sUP(id);
 
                 return await Task.FromResult(new OkObjectResult(new Response
                 {
