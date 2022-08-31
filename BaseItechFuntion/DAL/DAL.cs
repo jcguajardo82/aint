@@ -38,6 +38,7 @@ namespace BaseItechFuntion.DAL
                         //command.Parameters.AddWithValue("@Usuario", Aut.User);
 
                         command.Parameters.Add(new SqlParameter("Usuario", Aut.username) { SqlDbType = System.Data.SqlDbType.Char });
+                        command.Parameters.Add(new SqlParameter("@pass", Aut.password) { SqlDbType = System.Data.SqlDbType.NVarChar });
 
                         result = new DataTable();
                         sda.Fill(result);
@@ -103,6 +104,8 @@ namespace BaseItechFuntion.DAL
                     sqlComm.Parameters.AddWithValue("@autor", user.autor);
                     sqlComm.Parameters.AddWithValue("@usuario", user.usuario);
                     sqlComm.Parameters.AddWithValue("@rol", user.rol);
+                    sqlComm.Parameters.AddWithValue("@correo", user.correo);
+                    sqlComm.Parameters.AddWithValue("@password", user.password);
 
                     con.Open();
                     sqlComm.ExecuteReader();
@@ -133,6 +136,8 @@ namespace BaseItechFuntion.DAL
                     sqlComm.Parameters.AddWithValue("@autor", user.autor);
                     sqlComm.Parameters.AddWithValue("@usuario", user.usuario);
                     sqlComm.Parameters.AddWithValue("@rol", user.rol);
+                    sqlComm.Parameters.AddWithValue("@correo", user.correo);
+                    sqlComm.Parameters.AddWithValue("@password", user.password);
 
                     con.Open();
                     sqlComm.ExecuteReader();

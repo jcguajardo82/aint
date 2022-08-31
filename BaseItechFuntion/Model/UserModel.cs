@@ -17,6 +17,8 @@ namespace BaseItechFuntion.Model
         public string fechaModificacion { get; set; } = string.Empty;
         public string usuario { get; set; }
         public string rol { get; set; }
+        public string correo { get; set; }
+        public string password { get; set; }
         //  [idUsuario]
         //,[nombre]
         //,[activo]
