@@ -12,7 +12,7 @@ namespace BaseItechFuntion.Model
 
         public UserResponse user { get; set; }
 
-        public int idRol { get; set; }
+        public string idRol { get; set; }
         public string rol { get; set; }
 
 

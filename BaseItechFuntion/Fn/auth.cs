@@ -1,5 +1,14 @@
 using BaseItechFuntion.Helpers;
 using BaseItechFuntion.Model;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
 
 namespace BaseItechFuntion.Fn
 {
@@ -63,7 +72,7 @@ namespace BaseItechFuntion.Fn
                             accessToken = token,
                             user = userI,
                             rol = userInfo.Rol,
-                            idRol=userInfo.Rol
+                            idRol=userInfo.RolId
                         }
 
                     })).ConfigureAwait(false);
