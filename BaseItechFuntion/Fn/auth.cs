@@ -1,15 +1,5 @@
-using System;
-using System.IO;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using BaseItechFuntion.Model;
-using System.Collections.Generic;
 using BaseItechFuntion.Helpers;
+using BaseItechFuntion.Model;
 
 namespace BaseItechFuntion.Fn
 {
@@ -17,7 +7,7 @@ namespace BaseItechFuntion.Fn
     {
         [FunctionName("auth")]
         public static async Task<IActionResult> SingIn(
-            [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] LoginModel credentials, HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] LoginModel credentials, HttpRequest req,
             ILogger log)
         {
             try
@@ -71,7 +61,9 @@ namespace BaseItechFuntion.Fn
                         Result = new LoginResponseModel
                         {
                             accessToken = token,
-                            user = userI
+                            user = userI,
+                            rol = userInfo.Rol,
+                            idRol=userInfo.Rol
                         }
 
                     })).ConfigureAwait(false);

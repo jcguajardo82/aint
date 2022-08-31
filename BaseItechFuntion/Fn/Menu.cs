@@ -412,25 +412,27 @@ namespace BaseItechFuntion.Fn
                     mitem.icon = p.icono;
                     mitem.title = p.descripcionCorta;
                     mitem.link = p.url;
-                    mitem.type = "basic";
+                    mitem.type = "collapsable";
                     mitem.id = p.menuId.ToString();
                     //mitem.items = new List<item>();
                     var h = _result.Where(z => z.padreId == p.menuId).ToList();
+                    mitem.children = new List<FuseNavigationItem>();
+
+                    foreach (var item in h)
+                    {
 
 
-                    //foreach (var item in h)
-                    //{
-
-
-                    //    mitem.items.Add(
-                    //        new item
-                    //        {
-                    //            icon = item.icono,
-                    //            label = item.descripcionCorta,
-                    //            routerLink = item.url
-                    //        }
-                    //        );
-                    //}
+                        mitem.children.Add(
+                            new FuseNavigationItem
+                            {
+                                icon = item.icono,
+                                title = item.descripcionCorta,
+                                link = item.url,
+                                type = "basic",
+                                id =p.menuId +"."+ item.menuId.ToString()
+                            }
+                            );
+                    }
                     menuLst.Default.Add(mitem);
                     menuLst.Compact.Add(mitem);
                     menuLst.Futuristic.Add(mitem);

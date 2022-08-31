@@ -42,5 +42,7 @@ namespace BaseItechFuntion.Model
         public string type { get; set; }
         public string icon { get; set; }
         public string link { get; set; }
+
+        public List<FuseNavigationItem> children { get; set; }
     }
 }
