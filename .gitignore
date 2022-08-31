@@ -1,0 +1,8 @@
+
+*.pubxml
+
+BaseItechFuntion/Properties/serviceDependencies.BaseItechFunction - Zip Deploy.json
+
+BaseItechFuntion/Properties/ServiceDependencies/BaseItechFunction - Zip Deploy/profile.arm.json
+
+BaseItechFuntion/Properties/ServiceDependencies/BaseItechFunction - Zip Deploy/storage1.arm.json
