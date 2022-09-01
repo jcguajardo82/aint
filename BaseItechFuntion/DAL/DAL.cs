@@ -51,6 +51,8 @@ namespace BaseItechFuntion.DAL
                 userinfo.UserName = item["nombre"].ToString();
                 userinfo.Rol = item["nombreRol"].ToString();
                 userinfo.RolId = item["rol"].ToString();
+                userinfo.correo = item["correo"].ToString();
+                userinfo.avatar =null;
             }
 
             return userinfo;

@@ -33,7 +33,16 @@ namespace BaseItechFuntion.Fn
                 }
                 else
                 {
-                   
+
+                    UserResponse userI = new UserResponse();
+
+
+                    userI.id = userInfo.RolId;
+                    userI.name = userInfo.UserName;
+                    userI.email = userInfo.correo;
+                    userI.avatar = userInfo.avatar;
+                    userI.status = null ;
+
 
                     Dictionary<string, object> claims = new Dictionary<string, object>
                         {
@@ -45,21 +54,16 @@ namespace BaseItechFuntion.Fn
 
                             { "roleId", userInfo.RolId },
 
-                            { "exp",new DateTimeOffset(DateTime.Now.AddMinutes(30)).ToUnixTimeMilliseconds()}
+                            { "exp",new DateTimeOffset(DateTime.Now.AddMinutes(30)).ToUnixTimeMilliseconds()},
+
+                            { "user",userI}
                         };
 
                     GenerateJWTToken generateJWTToken = new();
                     string token = generateJWTToken.IssuingJWT(claims);
                     
 
-                    UserResponse userI = new UserResponse();
 
-
-                    userI.id = userInfo.RolId;
-                    userI.name = userInfo.UserName;
-                    userI.email = String.Empty;
-                    userI.avatar = String.Empty;
-                    userI.status = String.Empty;
 
 
 

@@ -14,5 +14,9 @@ namespace BaseItechFuntion.Model
 
         public string RolId { get; set; }
 
+        public string correo { get; set; }
+
+        public string avatar { get; set; }
+
     }
 }
