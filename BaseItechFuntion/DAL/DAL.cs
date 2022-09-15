@@ -1,5 +1,6 @@
 ﻿using BaseItechFuntion.Helpers;
 using BaseItechFuntion.Model;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -52,7 +53,7 @@ namespace BaseItechFuntion.DAL
                 userinfo.Rol = item["nombreRol"].ToString();
                 userinfo.RolId = item["rol"].ToString();
                 userinfo.correo = item["correo"].ToString();
-                userinfo.avatar =null;
+                userinfo.avatar = null;
             }
 
             return userinfo;
@@ -358,7 +359,6 @@ namespace BaseItechFuntion.DAL
         //MenuRolConfig
         #endregion
 
-
         #region Menu
         public void Menu_iUP(MenuModel menu)
         {
@@ -557,6 +557,202 @@ namespace BaseItechFuntion.DAL
 
                 }
             }
+
+        }
+
+        #endregion
+
+        #region Lenguajes
+        public Dictionary<string, string> EtiquetaValor_sUp(string lenguaje)
+        {
+            //List<object> etiquetas = new List<object>();
+            Dictionary<string, string> etiquetas = new Dictionary<string, string>();
+
+
+            DataSet result;
+            using (var sqlConnection = new SqlConnection(connString))
+            {
+                using (var command = sqlConnection.CreateCommand())
+                {
+                    using (SqlDataAdapter sda = new SqlDataAdapter(command))
+                    {
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.CommandText = "[config].[EtiquetaValor_sUp]";
+
+                        command.Parameters.AddWithValue("@lenguaje", lenguaje);
+
+                        //command.Parameters.Add(new SqlParameter("idUsuario", idUsuario) { SqlDbType = System.Data.SqlDbType.Char });
+
+                        result = new DataSet();
+                        sda.Fill(result);
+                    }
+                }
+            }
+
+            foreach (DataRow item in result.Tables[0].Rows)
+            {
+                etiquetas.Add(item["label"].ToString(), item["valor"].ToString());
+            }
+
+
+
+
+            return etiquetas;
+
+
+        }
+
+
+        public void Etiquetas_iUp(EtiquetasModel etiqueta)
+        {
+
+            using (SqlConnection con = new SqlConnection(connString))
+            {
+                using (SqlCommand sqlComm = new SqlCommand("[config].[Etiquetas_iUp]", con))
+                {
+                    sqlComm.CommandType = CommandType.StoredProcedure;
+
+                    sqlComm.Parameters.AddWithValue("@label", etiqueta.label);
+                    sqlComm.Parameters.AddWithValue("@modulo", etiqueta.modulo);
+                    sqlComm.Parameters.AddWithValue("@descripcion", etiqueta.descripcion);
+
+
+                    con.Open();
+                    sqlComm.ExecuteReader();
+
+                    //SqlDataAdapter adapter = new SqlDataAdapter(sqlComm);
+                    //adapter.Fill(ds);
+
+
+                }
+            }
+
+        }
+
+        public void Etiquetas_uUp(EtiquetasModel etiqueta)
+        {
+
+            using (SqlConnection con = new SqlConnection(connString))
+            {
+                using (SqlCommand sqlComm = new SqlCommand("[config].[Etiquetas_uUp]", con))
+                {
+                    sqlComm.CommandType = CommandType.StoredProcedure;
+
+                    sqlComm.Parameters.AddWithValue("@idLabel", etiqueta.idlabel);
+                    sqlComm.Parameters.AddWithValue("@label", etiqueta.label);
+                    sqlComm.Parameters.AddWithValue("@modulo", etiqueta.modulo);
+                    sqlComm.Parameters.AddWithValue("@descripcion", etiqueta.descripcion);
+
+
+                    con.Open();
+                    sqlComm.ExecuteReader();
+
+                    //SqlDataAdapter adapter = new SqlDataAdapter(sqlComm);
+                    //adapter.Fill(ds);
+
+
+                }
+            }
+
+        }
+
+        public void Etiquetas_dUp(int idLabel)
+        {
+
+            using (SqlConnection con = new SqlConnection(connString))
+            {
+                using (SqlCommand sqlComm = new SqlCommand("[config].[Etiquetas_dUp]", con))
+                {
+                    sqlComm.CommandType = CommandType.StoredProcedure;
+
+                    sqlComm.Parameters.AddWithValue("@idLabel", idLabel);
+
+
+                    con.Open();
+                    sqlComm.ExecuteReader();
+
+                    //SqlDataAdapter adapter = new SqlDataAdapter(sqlComm);
+                    //adapter.Fill(ds);
+
+
+                }
+            }
+
+        }
+
+        public List<EtiquetasModel> Etiquetas_sUp()
+        {
+
+            DataSet result = new DataSet();
+            using (var sqlConnection = new SqlConnection(connString))
+            {
+                using (var command = sqlConnection.CreateCommand())
+                {
+                    using (SqlDataAdapter sda = new SqlDataAdapter(command))
+                    {
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.CommandText = "[config].[usuarios_sUP]";
+
+                       
+
+                        result = new DataSet();
+                        sda.Fill(result);
+                    }
+                }
+            }
+
+            return DataTableToModel.ConvertTo<EtiquetasModel>(result.Tables[0]);
+
+        }
+
+        public List<EtiquetasModel> EtiquetasById_sUp(int idLabel)
+        {
+
+            DataSet result = new DataSet();
+            using (var sqlConnection = new SqlConnection(connString))
+            {
+                using (var command = sqlConnection.CreateCommand())
+                {
+                    using (SqlDataAdapter sda = new SqlDataAdapter(command))
+                    {
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.CommandText = "[config].[usuarios_sUP]";
+
+                        command.CommandType = CommandType.StoredProcedure;
+
+                        command.Parameters.AddWithValue("@idLabel", idLabel);
+
+                        result = new DataSet();
+                        sda.Fill(result);
+                    }
+                }
+            }
+
+            return DataTableToModel.ConvertTo<EtiquetasModel>(result.Tables[0]);
+        }
+
+        public List<LenguajeModel> Lenguaje_sUP()
+        {
+
+            DataSet result = new DataSet();
+            using (var sqlConnection = new SqlConnection(connString))
+            {
+                using (var command = sqlConnection.CreateCommand())
+                {
+                    using (SqlDataAdapter sda = new SqlDataAdapter(command))
+                    {
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.CommandText = "[config].[Lenguaje_sUP]";
+
+
+
+                        result = new DataSet();
+                        sda.Fill(result);
+                    }
+                }
+            }
+
+            return DataTableToModel.ConvertTo<LenguajeModel>(result.Tables[0]);
 
         }
 
