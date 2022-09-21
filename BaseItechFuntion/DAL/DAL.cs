@@ -691,9 +691,9 @@ namespace BaseItechFuntion.DAL
                     using (SqlDataAdapter sda = new SqlDataAdapter(command))
                     {
                         command.CommandType = System.Data.CommandType.StoredProcedure;
-                        command.CommandText = "[config].[usuarios_sUP]";
+                        command.CommandText = "[config].[Etiquetas_sUp]";
 
-                       
+
 
                         result = new DataSet();
                         sda.Fill(result);
@@ -716,7 +716,7 @@ namespace BaseItechFuntion.DAL
                     using (SqlDataAdapter sda = new SqlDataAdapter(command))
                     {
                         command.CommandType = System.Data.CommandType.StoredProcedure;
-                        command.CommandText = "[config].[usuarios_sUP]";
+                        command.CommandText = "[config].[EtiquetasById_sUp]";
 
                         command.CommandType = CommandType.StoredProcedure;
 
@@ -756,6 +756,193 @@ namespace BaseItechFuntion.DAL
 
         }
 
+
+
+        public void Lenguajes_iUp(LenguajeModel lenguaje)
+        {
+
+            using (SqlConnection con = new SqlConnection(connString))
+            {
+                using (SqlCommand sqlComm = new SqlCommand("[config].[Lenguajes_iUp]", con))
+                {
+                    sqlComm.CommandType = CommandType.StoredProcedure;
+
+
+                    sqlComm.Parameters.AddWithValue("@nombre", lenguaje.Nombre);
+                    sqlComm.Parameters.AddWithValue("@codigo", lenguaje.Codigo);
+
+
+                    con.Open();
+                    sqlComm.ExecuteReader();
+
+                    //SqlDataAdapter adapter = new SqlDataAdapter(sqlComm);
+                    //adapter.Fill(ds);
+
+
+                }
+            }
+
+        }
+
+        public void Lenguajes_uUp(LenguajeModel lenguaje)
+        {
+
+            using (SqlConnection con = new SqlConnection(connString))
+            {
+                using (SqlCommand sqlComm = new SqlCommand("[config].[Lenguajes_uUp]", con))
+                {
+                    sqlComm.CommandType = CommandType.StoredProcedure;
+
+
+                    sqlComm.Parameters.AddWithValue("@IdLenguaje", lenguaje.IdLenguaje);
+                    sqlComm.Parameters.AddWithValue("@nombre", lenguaje.Nombre);
+                    sqlComm.Parameters.AddWithValue("@codigo", lenguaje.Codigo);
+
+
+                    con.Open();
+                    sqlComm.ExecuteReader();
+
+                    //SqlDataAdapter adapter = new SqlDataAdapter(sqlComm);
+                    //adapter.Fill(ds);
+
+
+                }
+            }
+
+        }
+
+        public void Lenguajes_dUp(int IdLenguaje)
+        {
+
+            using (SqlConnection con = new SqlConnection(connString))
+            {
+                using (SqlCommand sqlComm = new SqlCommand("[config].[Lenguajes_dUp]", con))
+                {
+                    sqlComm.CommandType = CommandType.StoredProcedure;
+
+
+                    sqlComm.Parameters.AddWithValue("@IdLenguaje", IdLenguaje);
+
+
+
+                    con.Open();
+                    sqlComm.ExecuteReader();
+
+                    //SqlDataAdapter adapter = new SqlDataAdapter(sqlComm);
+                    //adapter.Fill(ds);
+
+
+                }
+            }
+
+        }
+
+        public LenguajeModel LenguajesById_sUp(int IdLenguaje)
+        {
+
+            DataSet result = new DataSet();
+            using (var sqlConnection = new SqlConnection(connString))
+            {
+                using (var command = sqlConnection.CreateCommand())
+                {
+                    using (SqlDataAdapter sda = new SqlDataAdapter(command))
+                    {
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.CommandText = "[config].[LenguajesById_sUp]";
+
+                        command.CommandType = CommandType.StoredProcedure;
+
+                        command.Parameters.AddWithValue("@IdLenguaje", IdLenguaje);
+
+                        result = new DataSet();
+                        sda.Fill(result);
+                    }
+                }
+            }
+
+            return DataTableToModel.ConvertTo<LenguajeModel>(result.Tables[0]).FirstOrDefault();
+        }
+
+
+        public List<ComboModel> EtiquetaModulos_sUp()
+        {
+
+            DataSet result = new DataSet();
+            using (var sqlConnection = new SqlConnection(connString))
+            {
+                using (var command = sqlConnection.CreateCommand())
+                {
+                    using (SqlDataAdapter sda = new SqlDataAdapter(command))
+                    {
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.CommandText = "[config].[EtiquetaModulos_sUp]";
+
+
+
+                        result = new DataSet();
+                        sda.Fill(result);
+                    }
+                }
+            }
+
+            return DataTableToModel.ConvertTo<ComboModel>(result.Tables[0]);
+
+        }
+
+
+        public List<EtiquetaValModel> EtiquetaValorByIdLenguaje(int IdLenguaje, string modulo)
+        {
+
+            DataSet result = new DataSet();
+            using (var sqlConnection = new SqlConnection(connString))
+            {
+                using (var command = sqlConnection.CreateCommand())
+                {
+                    using (SqlDataAdapter sda = new SqlDataAdapter(command))
+                    {
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.CommandText = "[config].[EtiquetaValorByIdLenguaje_sUp]";
+
+                        command.CommandType = CommandType.StoredProcedure;
+
+                        command.Parameters.AddWithValue("@IdLenguaje", IdLenguaje);
+                        command.Parameters.AddWithValue("@modulo", modulo);
+
+                        result = new DataSet();
+                        sda.Fill(result);
+                    }
+                }
+            }
+
+            return DataTableToModel.ConvertTo<EtiquetaValModel>(result.Tables[0]);
+        }
+
+        public void EtiquetaValor_uUp(ComboModel etiqueta)
+        {
+
+            using (SqlConnection con = new SqlConnection(connString))
+            {
+                using (SqlCommand sqlComm = new SqlCommand("[config].[EtiquetaValor_uUp]", con))
+                {
+                    sqlComm.CommandType = CommandType.StoredProcedure;
+
+
+                    sqlComm.Parameters.AddWithValue("@idValue", etiqueta.Id);
+                    sqlComm.Parameters.AddWithValue("@valor", etiqueta.Value);
+
+
+
+                    con.Open();
+                    sqlComm.ExecuteReader();
+
+                    //SqlDataAdapter adapter = new SqlDataAdapter(sqlComm);
+                    //adapter.Fill(ds);
+
+
+                }
+            }
+
+        }
         #endregion
     }
 }
